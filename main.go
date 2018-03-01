@@ -27,7 +27,7 @@ func contentHandler(w http.ResponseWriter, r *http.Request) {
 func rootHandler(w http.ResponseWriter, r *http.Request) {
     files := readFiles()
     for _, file := range files {
-        fmt.Fprintf(w, file.Name())
+        fmt.Fprintf(w, "<a href=\"content/"+file.Name()+"\">"+file.Name()+"</a>")
     }
 }
 
