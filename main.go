@@ -9,10 +9,10 @@ import (
     "gopkg.in/russross/blackfriday.v2"
 )
 
-func handler(w http.ResponseWriter, r *http.Request) {
+func contentHandler(w http.ResponseWriter, r *http.Request) {
     files := readFiles()
     for _, file := range files {
-        if file.Name()  == r.URL.Path[1:] {
+        if "content/"+file.Name()  == r.URL.Path[1:] {
             filePath := "./content/" + file.Name()
             b, err := ioutil.ReadFile(filePath)
             if err != nil {
@@ -21,6 +21,13 @@ func handler(w http.ResponseWriter, r *http.Request) {
             output := blackfriday.Run(b)
             fmt.Fprintf(w, string(output))
         }
+    }
+}
+
+func rootHandler(w http.ResponseWriter, r *http.Request) {
+    files := readFiles()
+    for _, file := range files {
+        fmt.Fprintf(w, file.Name())
     }
 }
 
@@ -34,6 +41,7 @@ func readFiles() []os.FileInfo {
 }
 
 func main() {
-    http.HandleFunc("/", handler)
+    http.HandleFunc("/", rootHandler)
+    http.HandleFunc("/content/", contentHandler)
     log.Fatal(http.ListenAndServe(":8080", nil))
 }
