@@ -1,5 +1,13 @@
-<h1>Blog directory<h1>
+<html>
+    <head>
+        <link rel="stylesheet" href="static/style.css">
+    </head>
+    <body>
+        <h1>Blog directory</h1>
 
-{{range .}}
-{{.Name}}
-{{end}}
+        {{range .}}
+            <a href="content/{{.Name}}"> {{.Name}}</a>
+            {{.ModTime}} <br>
+        {{end}}
+    </body>
+</html>
