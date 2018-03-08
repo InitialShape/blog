@@ -1,47 +1,51 @@
 package main
 
 import (
-    "fmt"
-    "io/ioutil"
-    "os"
-    "log"
-    "net/http"
-    "gopkg.in/russross/blackfriday.v2"
+	"gopkg.in/russross/blackfriday.v2"
+	"html/template"
+	"io/ioutil"
+	"log"
+	"net/http"
+	"os"
 )
 
 func contentHandler(w http.ResponseWriter, r *http.Request) {
-    files := readFiles()
-    for _, file := range files {
-        if "content/"+file.Name()  == r.URL.Path[1:] {
-            filePath := "./content/" + file.Name()
-            b, err := ioutil.ReadFile(filePath)
-            if err != nil {
-                log.Fatal(err)
-            }
-            output := blackfriday.Run(b)
-            fmt.Fprintf(w, string(output))
-        }
-    }
+	files := readFiles()
+	for _, file := range files {
+		if "content/"+file.Name() == r.URL.Path[1:] {
+		        filePath := "./content/" + file.Name()
+			b, err := ioutil.ReadFile(filePath)
+			if err != nil {
+				log.Fatal(err)
+			}
+			output := blackfriday.Run(b)
+			t, _ := template.ParseFiles("./templates/article.html")
+			t.Execute(w, template.HTML(output))
+		}
+	}
 }
 
 func rootHandler(w http.ResponseWriter, r *http.Request) {
-    files := readFiles()
-    for _, file := range files {
-        fmt.Fprintf(w, "<a href=\"content/"+file.Name()+"\">"+file.Name()+"</a>")
-    }
+	files := readFiles()
+	t, err := template.ParseFiles("./templates/index.html")
+        if err != nil {
+            log.Fatal(err)
+        }
+	t.Execute(w, &files)
+
 }
 
 func readFiles() []os.FileInfo {
-    files, err := ioutil.ReadDir("./content")
-    if err != nil {
-        log.Fatal(err)
-    }
+	files, err := ioutil.ReadDir("./content")
+	if err != nil {
+		log.Fatal(err)
+	}
 
-    return files
+	return files
 }
 
 func main() {
-    http.HandleFunc("/", rootHandler)
-    http.HandleFunc("/content/", contentHandler)
-    log.Fatal(http.ListenAndServe(":8080", nil))
+	http.HandleFunc("/", rootHandler)
+	http.HandleFunc("/content/", contentHandler)
+	log.Fatal(http.ListenAndServe(":8080", nil))
 }
