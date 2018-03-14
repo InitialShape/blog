@@ -1,2 +1,7 @@
-body {
+section {
+    background-color: #fafafa;
+    border-radius: 3px;
+    margin: 3em;
+    padding: 10px;
 }
+

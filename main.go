@@ -11,6 +11,7 @@ import (
 	"regexp"
 	"sort"
 	"strings"
+        "bytes"
 	"time"
 )
 
@@ -34,12 +35,19 @@ func (p Articles) Swap(i, j int) {
 	p[i], p[j] = p[j], p[i]
 }
 
-func (article Article) ToMarkdown() ([]byte, error) {
+func (article Article) ToMarkdown(excerpt bool) ([]byte, error) {
 	b, err := ioutil.ReadFile(article.Path)
 	if err != nil {
 		return nil, err
 	}
-	return blackfriday.Run(b), err
+        markdown := blackfriday.Run(b)
+        if excerpt {
+                excerptEnd := bytes.Index(markdown, []byte("</p>"))
+                if excerptEnd != -1 {
+                        markdown = markdown[:excerptEnd]
+                }
+        }
+        return markdown, err
 }
 
 func pathToTime(path string) (time.Time, error) {
@@ -64,7 +72,7 @@ func contentHandler(w http.ResponseWriter, r *http.Request) {
 
 	for _, article := range articles {
 		if article.Path == r.URL.Path[1:] {
-			markdown, err := article.ToMarkdown()
+			markdown, err := article.ToMarkdown(false)
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -87,7 +95,7 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
 	for _, article := range articles {
                 var markdown []byte
 
-                articleMd, err := article.ToMarkdown()
+                articleMd, err := article.ToMarkdown(true)
 		if err != nil {
 			log.Fatal(err)
 		}
