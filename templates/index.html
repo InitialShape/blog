@@ -6,8 +6,8 @@
         <h1>Blog directory</h1>
 
         {{range .}}
-            <a href="content/{{.Name}}"> {{.Name}}</a>
-            {{.ModTime}} <br>
+            <a href="{{.Path}}"> {{.Info.Name}}</a>
+            {{.Info.ModTime}} <br>
         {{end}}
     </body>
 </html>

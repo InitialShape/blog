@@ -7,14 +7,24 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
+	"regexp"
 )
 
+type Article struct {
+	Path string
+	Info os.FileInfo
+}
+
 func contentHandler(w http.ResponseWriter, r *http.Request) {
-	files := readFiles()
+	files, err := readDirectory()
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	for _, file := range files {
-		if "content/"+file.Name() == r.URL.Path[1:] {
-			filePath := "./content/" + file.Name()
-			b, err := ioutil.ReadFile(filePath)
+		if file.Path == r.URL.Path[1:] {
+			b, err := ioutil.ReadFile(file.Path)
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -26,7 +36,7 @@ func contentHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func rootHandler(w http.ResponseWriter, r *http.Request) {
-	files := readFiles()
+	files, err := readDirectory()
 	t, err := template.ParseFiles("./templates/index.html")
 	if err != nil {
 		log.Fatal(err)
@@ -35,13 +45,24 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func readFiles() []os.FileInfo {
-	files, err := ioutil.ReadDir("./content")
-	if err != nil {
-		log.Fatal(err)
-	}
+func readDirectory() ([]Article, error) {
+	var articles []Article
+	var err error
 
-	return files
+	err = filepath.Walk("./content", func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			log.Print(err)
+			return nil
+		}
+		match, err := regexp.MatchString(".md", info.Name())
+		if match {
+			article := Article{path, info}
+			articles = append(articles, article)
+		}
+		return nil
+	})
+
+	return articles, err
 }
 
 func main() {
