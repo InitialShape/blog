@@ -1,9 +1,9 @@
 package utils
 
 import (
-        "strings"
-        "time"
-        "log"
+	"log"
+	"strings"
+	"time"
 )
 
 func PathToTime(path string) (time.Time, error) {

@@ -1,21 +1,23 @@
 package models
 
 import (
+	"bytes"
+	"github.com/InitialShape/blog/utils"
 	"gopkg.in/russross/blackfriday.v2"
 	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
 	"regexp"
-        "bytes"
 	"time"
-        "github.com/InitialShape/blog/utils"
+        "html/template"
 )
 
 type Article struct {
 	Path      string
 	Info      os.FileInfo
 	CreatedAt time.Time
+        HTML      template.HTML
 }
 
 type Articles []Article
@@ -32,19 +34,19 @@ func (p Articles) Swap(i, j int) {
 	p[i], p[j] = p[j], p[i]
 }
 
-func (article Article) ToMarkdown(excerpt bool) ([]byte, error) {
+func (article Article) ToHTML(excerpt bool) (template.HTML,  error) {
 	b, err := ioutil.ReadFile(article.Path)
 	if err != nil {
-		return nil, err
+		return template.HTML(""), err
 	}
-        markdown := blackfriday.Run(b)
-        if excerpt {
-                excerptEnd := bytes.Index(markdown, []byte("</p>"))
-                if excerptEnd != -1 {
-                        markdown = markdown[:excerptEnd]
-                }
-        }
-        return markdown, err
+	markdown := blackfriday.Run(b)
+	if excerpt {
+		excerptEnd := bytes.Index(markdown, []byte("</p>"))
+		if excerptEnd != -1 {
+			markdown = markdown[:excerptEnd]
+		}
+	}
+        return template.HTML(markdown), err
 }
 
 func GetArticles() (Articles, error) {

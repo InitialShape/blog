@@ -16,13 +16,13 @@ func contentHandler(w http.ResponseWriter, r *http.Request) {
 
 	for _, article := range articles {
 		if article.Path == r.URL.Path[1:] {
-			markdown, err := article.ToMarkdown(false)
+			html, err := article.ToHTML(false)
 			if err != nil {
 				log.Fatal(err)
 			}
 
 			t, _ := template.ParseFiles("./templates/article.html")
-			t.Execute(w, template.HTML(markdown))
+			t.Execute(w, html)
 		}
 	}
 }
@@ -35,20 +35,17 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 
-	var markdowns []byte
+	var htmls []template.HTML
 	for _, article := range articles {
-		var markdown []byte
 
-		articleMd, err := article.ToMarkdown(true)
+                html, err := article.ToHTML(true)
 		if err != nil {
 			log.Fatal(err)
 		}
-		markdown = append(markdown, []byte("<section>")...)
-		markdown = append(markdown, articleMd...)
-		markdown = append(markdown, []byte("</section>")...)
-		markdowns = append(markdowns, markdown...)
+                // Ideally, put this in a subtemplate
+		htmls = append(htmls, html)
 	}
-	t.Execute(w, template.HTML(markdowns))
+	t.Execute(w, htmls)
 
 }
 

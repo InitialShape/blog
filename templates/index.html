@@ -4,6 +4,10 @@
     </head>
     <body>
         <h1>InitialShape's Blog</h1>
-        {{.}}
+        {{range .}}
+            <section>
+                {{.}}
+            </section>
+        {{end}}
     </body>
 </html>
