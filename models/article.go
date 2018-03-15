@@ -67,7 +67,7 @@ func GetArticles() (Articles, error) {
 				return nil
 			}
 
-			article := Article{path, info, date}
+			article := Article{path, info, date, template.HTML("")}
 			articles = append(articles, article)
 		}
 		return nil

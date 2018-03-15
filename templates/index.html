@@ -6,7 +6,9 @@
         <h1>InitialShape's Blog</h1>
         {{range .}}
             <section>
-                {{.}}
+                {{.HTML}}
+                <br>
+                <a href="{{.Path}}">Read on</a>
             </section>
         {{end}}
     </body>

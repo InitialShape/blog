@@ -35,17 +35,16 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 
-	var htmls []template.HTML
-	for _, article := range articles {
+	for i, article := range articles {
 
                 html, err := article.ToHTML(true)
+                article.HTML = html
 		if err != nil {
 			log.Fatal(err)
 		}
-                // Ideally, put this in a subtemplate
-		htmls = append(htmls, html)
+                articles[i] = article
 	}
-	t.Execute(w, htmls)
+	t.Execute(w, articles)
 
 }
 
