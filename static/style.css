@@ -1,7 +1,28 @@
-section {
-    background-color: #fafafa;
-    border-radius: 3px;
-    margin: 3em;
-    padding: 10px;
+body {
+    font-family: Arial, Helvetica, sans-serif;
 }
 
+.blog {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+article {
+    max-width: 50%;
+    background-color: #fafafa;
+    border-radius: 1px;
+    margin: 3em;
+    padding: 10px;
+    border: 1px solid #F5F5F5;
+}
+
+section.main h1 {
+    font-size: 1.8em;
+    margin-top: 0.5em;
+    margin.left: 0.5em;
+}
+
+section.meta {
+    text-align: right;
+}

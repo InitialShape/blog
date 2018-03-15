@@ -6,7 +6,10 @@ import (
 	"log"
 	"net/http"
 	"sort"
+        "strconv"
 )
+
+const PAGE_SIZE = 4
 
 func contentHandler(w http.ResponseWriter, r *http.Request) {
 	articles, err := models.GetArticles()
@@ -28,15 +31,28 @@ func contentHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func rootHandler(w http.ResponseWriter, r *http.Request) {
+        page, err := strconv.Atoi(r.URL.Query().Get("page"))
 	articles, err := models.GetArticles()
 	sort.Sort(articles)
+
+        if page*PAGE_SIZE+PAGE_SIZE > len(articles) && page*PAGE_SIZE > len(articles) {
+                w.WriteHeader(http.StatusNotFound)
+                return
+        } else {
+            if page*PAGE_SIZE < len(articles) && page*PAGE_SIZE+PAGE_SIZE > len(articles) {
+                    articles = articles[PAGE_SIZE*page:len(articles)]
+            } else {
+                    articles = articles[PAGE_SIZE*page:page*PAGE_SIZE+PAGE_SIZE]
+            }
+        }
+
+
 	t, err := template.ParseFiles("./templates/index.html")
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	for i, article := range articles {
-
                 html, err := article.ToHTML(true)
                 article.HTML = html
 		if err != nil {
@@ -44,7 +60,12 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
 		}
                 articles[i] = article
 	}
-	t.Execute(w, articles)
+
+	t.Execute(w, map[string]interface{}{
+                "NextPage": page+1,
+                "PrevPage": page-1,
+                "Articles": articles,
+        })
 
 }
 
